@@ -1,0 +1,40 @@
+{% extends 'blog/base.html' %}
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+</head>
+
+{% block description %}
+<div class="container">
+  <h1>Посты</h1>
+  {% if posts %}
+    <div class="row">
+      {% for post in posts %}
+      <div class="col-md-4">
+        <div class="card mb-4 shadow-sm">
+          <img class="card-img-top" src="{{ post.image.url }}" alt="{{ post.title }}">
+          <div class="card-body">
+            <h2 class="card-title">{{ post.title }}</h2>
+            <p class="card-text">{{ post.description }}</p>
+            <p class="card-text">Автор: {{ post.author }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <p>Дата создания: {{ post.created_at }}</p>
+              <div class="btn-group">
+                <a href="{% url 'post_detail' post.id %}" class="btn btn-sm btn-outline-secondary">Подробнее</a>
+              </div>
+              <small class="text-muted">{{ post.date_posted }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No posts yet.</p>
+  {% endif %}
+</div>
+{% endblock %}
+
