@@ -17,15 +17,6 @@
                         <p>You need to be logged in to register for this event.</p>
                         <a href="{% url 'login' %}?next={{ request.path }}">Log in</a>
                     {% else %}
-                        <form method="POST" action="{% url 'register_post' pk=post.pk %}">
-                            {% csrf_token %}
-                            {{ form.as_p }}
-                            <button type="submit">Register</button>
-                        </form>
-                        <a href="{% url 'get_registered_users' post.id %}">View registered users</a>
-                    {% endif %}
-                {% endif %}
-                </form>
             </div>
         </div>
     </div>

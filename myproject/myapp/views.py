@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.core.mail import send_mail
 
 from .forms import UserRegisterForm, UserLoginForm, UserLogoutForm, PostForm
-from .models import Post, Registration
+from .models import Post
 
 
 def home(request):
@@ -85,24 +85,7 @@ def create_post(request):
     return render(request, 'create_post.html', {'form': form})
 
 
-def registrations_list(request, event_id):
-    registrations = Registration.objects.filter(event_id=event_id)
-    return render(request, 'registrations_list.html', {'registrations': registrations})
 
-
-def create_registration(request, event_id):
-    event = get_object_or_404(Event, pk=event_id)
-    registration = Registration(event=event, user=request.user)
-    registration.save()
-
-    # send confirmation email to the user
-    subject = 'Event Registration Confirmation'
-    message = 'Thank you for registering for %s. Your registration was successful.' % event.title
-    from_email = 'your_email@example.com'
-    to_email = [request.user.email]
-    send_mail(subject, message, from_email, to_email)
-
-    return redirect('registrations_list', event_id=event_id)
 
 
 
