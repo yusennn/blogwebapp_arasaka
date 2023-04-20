@@ -1,10 +1,11 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.core.mail import send_mail
+
 from .forms import UserRegisterForm, UserLoginForm, UserLogoutForm, PostForm
-from .models import Post
+from .models import Post, Registration
 
 
 def home(request):
@@ -73,10 +74,37 @@ def create_post(request):
     if request.method == 'POST':
         form = PostForm(request.POST)
         if form.is_valid():
-            form.instance.author = request.user
-            form.save()
-            messages.success(request, 'Post created successfully.')
-            return redirect('home')
+            post = form.save(commit=False)
+            post.author = request.user
+            if form.cleaned_data.get('is_registration_post'):
+                post.is_registration_post = True
+            post.save()
+            return redirect('post_detail', post_id=post.pk)
     else:
         form = PostForm()
-    return render(request, 'myapp/create_post.html', {'form': form})
+    return render(request, 'create_post.html', {'form': form})
+
+
+def registrations_list(request, event_id):
+    registrations = Registration.objects.filter(event_id=event_id)
+    return render(request, 'registrations_list.html', {'registrations': registrations})
+
+
+def create_registration(request, event_id):
+    event = get_object_or_404(Event, pk=event_id)
+    registration = Registration(event=event, user=request.user)
+    registration.save()
+
+    # send confirmation email to the user
+    subject = 'Event Registration Confirmation'
+    message = 'Thank you for registering for %s. Your registration was successful.' % event.title
+    from_email = 'your_email@example.com'
+    to_email = [request.user.email]
+    send_mail(subject, message, from_email, to_email)
+
+    return redirect('registrations_list', event_id=event_id)
+
+
+
+
+

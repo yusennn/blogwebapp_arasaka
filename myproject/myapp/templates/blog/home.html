@@ -5,17 +5,108 @@
     <meta charset="UTF-8">
     <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
+  {% block custom_css %}
+<style>
+.carousel-caption {
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 10;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    color: #fff;
+    text-align: center;
+}
+
+.carousel-item {
+
+  height: 700px; /* Set the height of the div */
+  width: 1500px; /* Set the width of the div */
+  overflow: hidden; /* Hide the contents that overflow */
+}
+
+.carousel-item active {
+
+}
+
+.carousel-item img {
+    height: 700px;
+    width: 600px;
+    object-fit: cover;
+}
+
+.carousel-caption h5 {
+    color: #fff;
+}
+
+.carousel-caption p {
+    color: #fff;
+    margin-bottom: 0;
+    font-size: 100px;
+}
+
+.carousel-caption .btn {
+    margin-top: 10px;
+}
+
+.caption-content {
+  position: absolute;
+  background-color: black;
+  opacity: .5;
+  color: #fff;
+  padding: 10px;
+}
+.container{
+  margin-bottom: 60px;
+}
+</style>
+{% endblock %}
 </head>
 
 {% block description %}
+<div>
 <div class="container">
-  <h1>Посты</h1>
+  <div class="row" style="width:100%">
+    <div class="col-md-12">
+      <div id="carouselExampleIndicators" class="carousel slide" data-bs-ride="carousel">
+        <ol class="carousel-indicators">
+          {% for post in posts %}
+          <li data-bs-target="#carouselExampleIndicators" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active"{% endif %}></li>
+          {% endfor %}
+        </ol>
+        <div class="carousel-inner">
+          {% for post in posts %}
+         <div class="carousel-item {% if forloop.first %}active{% endif %}">
+    <img src="{{ post.image.url }}" class="d-block w-100" alt="{{ post.title }}" style="position: relative;">
+    <div class="caption-content" style="position: absolute; bottom: 0; width: 100%; opacity: 0.7;">
+      <h1>{{ post.title }}</h1>
+      <p>{{ post.description }}</p>
+      <a href="{% url 'post_detail' post.id %}" class="btn btn-primary">Подробнее</a>
+    </div>
+</div>
+          {% endfor %}
+        </div>
+        <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-bs-slide="next">
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
   {% if posts %}
-    <div class="row">
+    <div class="row" style="justify-content: center;">
       {% for post in posts %}
-      <div class="col-md-4">
-        <div class="card mb-4 shadow-sm">
-          <img class="card-img-top" src="{{ post.image.url }}" alt="{{ post.title }}">
+      <div class="col-md-4" style="width: 500px;">
+        <div class="card mb-4 shadow-sm" style="">
+          <img class="card-img-top" src="{{ post.image.url }}" alt="{{ post.title }}" style="height: 350px;">
           <div class="card-body">
             <h2 class="card-title">{{ post.title }}</h2>
             <p class="card-text">{{ post.description }}</p>
@@ -35,6 +126,5 @@
   {% else %}
     <p>No posts yet.</p>
   {% endif %}
-</div>
+</html>
 {% endblock %}
-
