@@ -2,10 +2,8 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from django.core.mail import send_mail
-
-from .forms import UserRegisterForm, UserLoginForm, UserLogoutForm, PostForm
-from .models import Post
+from .forms import UserRegisterForm, UserLoginForm, UserLogoutForm, PostForm, EventRegistrationForm
+from .models import Post, Event, EventVisitor
 
 
 def home(request):
@@ -13,12 +11,28 @@ def home(request):
     return render(request, 'blog/home.html', {'posts': posts})
 
 
+def event_list(request):
+    events = Event.objects.all()
+    return render(request, 'blog/events.html', {'events': events})
+
+
+def event_detail(request, pk):
+    event = Event.objects.get(pk=pk)
+    return render(request, 'blog/event_detail.html', {'event': event})
+
+
+def delete_event(pk):
+    post = get_object_or_404(Event, pk=pk)
+    post.delete()
+    return redirect('home')
+
+
 def post_detail(request, pk):
     post = Post.objects.get(pk=pk)
     return render(request, 'blog/post_detail.html', {'post': post})
 
 
-def delete_post(request, pk):
+def delete_post(pk):
     post = get_object_or_404(Post, pk=pk)
     post.delete()
     return redirect('home')
@@ -83,6 +97,27 @@ def create_post(request):
     else:
         form = PostForm()
     return render(request, 'create_post.html', {'form': form})
+
+
+def event_registration(request, pk):
+    print("view is being called")
+    event = get_object_or_404(Event, pk=pk)
+    if request.method == 'POST':
+        form = EventRegistrationForm(request.POST, event=event) # pass the event instance
+        if form.is_valid():
+            event_visitor = form.save(commit=True)
+            print(form.errors)
+            print(event_visitor)
+            event_visitor.event = event
+            event_visitor.save()
+            messages.success(request, 'You have successfully registered for the event!')
+            return redirect('event_detail', pk=event.pk)
+    else:
+        form = EventRegistrationForm(event=event) # pass the event instance
+    return render(request, 'event_registration.html', {'form': form, 'event': event})
+
+
+
 
 
 
