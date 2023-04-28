@@ -1,16 +1,24 @@
 {% extends 'blog/base.html' %}
-
+<head>
+    <style>
+    body {
+        height: 100vh
+        font-family: 'Playfair Display', serif;
+    }
+    </style>
+</head>
 {% block title %}{{ post.title }}{% endblock %}
 
 {% block description %}
-    <div class="container">
+<body>
+<div class="container" xmlns="http://www.w3.org/1999/html"  style="margin-bottom:px; height: 100vh">
         <div class="row">
             <div class="col-md-8 mx-auto">
                 <article>
-                    <h2>{{ post.title }}</h2>
+                    <h2 style="font-weight: 800; font-size: 35px; margin-bottom: 20px; margin-top: 20px;">{{ post.title }}</h2>
                     <img src="{{ post.image.url }}" alt="{{ post.title }}" class="img-fluid mb-4">
-                    <p>{{ post.description }}</p>
-                    <h5><em>Автор: {{ post.author }}</em> <br> <em>{{ post.created_at }}</em></h5>
+                    <p style="font-size: 20px; margin-top: 20px;">{{ post.description|linebreaksbr }}</p>
+                    <h5 style="font-weight: 600; font-size: 20px; margin-top: 5px;">Автор: {{ post.author }} <br> {{ post.created_at }}</h5>
                 </article>
             </div>
         </div>

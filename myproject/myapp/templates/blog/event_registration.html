@@ -2,57 +2,83 @@
   {% load static %}
   <link rel="stylesheet" type="text/css" href="{% static 'css/bootstrap.min.css' %}">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+  <style>
+  body {
+  font-family: 'Playfair Display', serif;
+  }
+    /* The Modal (background) */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgb(0,0,0); /* Fallback color */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    /* Modal Content/Box */
+    .modal-content {
+      background-color: #fefefe;
+      margin: 15% auto; /* 15% from the top and centered */
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%; /* Could be more or less, depending on screen size */
+    }
+
+    /* The Close Button */
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+  </style>
 </head>
+
 {% block content %}
 <body>
-  <div class="container my-5">
-    <div class="row justify-content-center">
-      <div class="col-md-8">
-        <div class="card">
-          <div class="card-header bg-primary text-white">
-            <h4>Register for {{ event.title }}</h4>
-          </div>
-          <div class="card-body">
-            <form method="POST" class="form">
-              {% csrf_token %}
-              <input type="hidden" name="event_pk" value="{{ event.pk }}">
-              {% for field in form %}
-                <div class="form-group">
-                  {{ field.label_tag }}
-                  {% if field.name == 'email' %}
-                    {{ field }}
-                    <small class="form-text text-muted">We'll never share your email with anyone else.</small>
-                  {% else %}
-                    {{ field }}
-                  {% endif %}
-                  {% if field.help_text %}
-                    <small class="form-text text-muted">{{ field.help_text }}</small>
-                  {% endif %}
-                  {% for error in field.errors %}
-                    <div class="invalid-feedback">{{ error }}</div>
-                  {% endfor %}
-                </div>
-              {% endfor %}
-              <button type="submit" class="btn btn-primary">Register</button>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
+<div id="success-modal" class="modal">
+  <div class="modal-content">
+    <span class="close">&times;</span>
+    <p>Registration successful!</p>
   </div>
-
+</div>
 <script>
-$(document).ready(function() {
-  // Handle registration button click
-  $('button[data-target="#registrationModal"]').click(function() {
-    $.ajax({
-      url: "{% url 'event_registration' pk=event.pk %}",
-      success: function(data) {
-        $('#registrationModal .modal-body').html(data);
-      }
-    });
-  });
-});
+  // Get the modal
+var modal = document.getElementById("success-modal");
+
+// Get the <span> element that closes the modal
+var span = document.getElementsByClassName("close")[0];
+
+// Show the modal when registration is successful
+if (registration_successful) {
+  modal.style.display = "block";
+}
+
+// When the user clicks on <span> (x), close the modal
+span.onclick = function() {
+  modal.style.display = "none";
+}
+
+// When the user clicks anywhere outside of the modal, close it
+window.onclick = function(event) {
+  if (event.target == modal) {
+    modal.style.display = "none";
+  }
+}
+
 </script>
-</body>  
+</body>
 {% endblock %}

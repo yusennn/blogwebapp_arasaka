@@ -1,81 +1,65 @@
 {% extends 'blog/base.html' %}
-
+<head>
+    <style>
+    body {
+        height: 100vh
+        font-family: 'Playfair Display', serif;
+    }
+    </style>
+</head>
 {% block title %}{{ event.title }}{% endblock %}
 
 {% block description %}
-    <div class="container">
+<body>
+<div class="container" xmlns="http://www.w3.org/1999/html"  style="margin-bottom:px; height: 100vh">
         <div class="row">
             <div class="col-md-8 mx-auto">
                 <article>
-                    <h2>{{ event.title }}</h2>
+                    <h2 style="font-weight: 800; font-size: 35px;">{{ event.title }}</h2>
                     <img src="{{ event.image.url }}" alt="{{ event.title }}" class="img-fluid mb-4">
-                    <p>{{ event.description }}</p>
+                    <p>{{ event.description|linebreaksbr }}</p>
                     <!-- Registration button -->
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#registrationModal">
-                      Register for Event
-                    </button>
-
-                    <!-- Registration Modal -->
-                    <div class="modal fade" id="registrationModal" tabindex="-1" role="dialog" aria-labelledby="registrationModalLabel" aria-hidden="true">
-                      <div class="modal-dialog" role="document">
-                        <div class="modal-content">
-                          <div class="modal-header">
-                            <h5 class="modal-title" id="registrationModalLabel">Event Registration</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                              <span aria-hidden="true">&times;</span>
-                            </button>
-                          </div>
-                          <div class="modal-body">
-                            <div id="registrationForm"></div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </article>
+                    <form id="registration-form" action="{% url 'event_registration' pk=event.pk %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-primary">Register</button>
+                    </form>
                     <h5><em>Автор: {{ event.author }}</em> <br> <em>{{ event.created_at }}</em></h5>
                 </article>
             </div>
         </div>
     </div>
-<script>
-    $(document).ready(function() {
-      // Load registration form on modal show
-      $('#registrationModal').on('show.bs.modal', function (event) {
-        var modal = $(this);
-        $.ajax({
-          url: "{% url 'event_registration' pk=event.pk %}",
-          success: function(data) {
-            modal.find('#registrationForm').html(data);
-          }
+<!-- Modal -->
+<div class="modal fade" id="registration-modal" tabindex="-1" role="dialog" aria-labelledby="registration-modal-label"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registration-modal-label">Registration successful!</h5>
+            </div>
+            <div class="modal-body">
+                You have successfully registered for this event.
+            </div>
+        </div>
+    </div>
+</div>
+    {% block scripts %}
+    <script>
+        $(document).ready(function () {
+            $('#registration-form').on('submit', function (event) {
+                event.preventDefault();
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    success: function (data) {
+                        $('#registration-modal').modal('show');
+                    }
+                });
+            });
         });
-      });
-
-      // Handle registration form submission
-      $('#registrationForm').on('submit', 'form', function(e) {
-        e.preventDefault();
-        var form = $(this);
-        $.ajax({
-          type: 'POST',
-          url: form.attr('action'),
-          data: form.serialize(),
-          success: function(data) {
-            alert('Registration successful!');
-            $('#registrationModal').modal('hide');
-          }
-        });
-      });
-    });
-    $(document).ready(function() {
-  // Handle registration button click
-  $('button[data-target="#registrationModal"]').click(function() {
-    $.ajax({
-      url: "{% url 'event_registration' pk=event.pk %}",
-      success: function(data) {
-        $('#registrationModal .modal-body').html(data);
-      }
-    });
-  });
-});
-
-  </script>
+    </script>
+</body>
 {% endblock %}
+{% endblock %}
+
+{% block footer %}{% endblock %}

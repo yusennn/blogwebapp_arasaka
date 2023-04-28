@@ -17,14 +17,14 @@
                     <form method="POST">
                         {% csrf_token %}
                         <div class="form-group">
-                            <label class="col-md-4 col-form-label text-md-right" for="{{ form.username.id_for_label }}">Username:</label>
+                            <label class="col-md-4 col-form-label text-md-right" style="font-weight: 800; font-size: 20px;" for="{{ form.username.id_for_label }}">Username:</label>
                             {{ form.username }}
                         </div>
                         <div class="form-group">
-                            <label class="col-md-4 col-form-label text-md-right" for="{{ form.password.id_for_label }}">Password:</label>
+                            <label class="col-md-4 col-form-label text-md-right" style="font-weight: 800; font-size: 20px;" for="{{ form.password.id_for_label }}">Password:</label>
                             {{ form.password }}
                         </div>
-                        <button type="submit" class="btn btn-primary">Login</button>
+                        <button type="submit"  class="btn btn-primary" style="margin-left: 300px; font-weight: 800; font-size: 20px;">Login</button>
                     </form>
                 </div>
             </div>

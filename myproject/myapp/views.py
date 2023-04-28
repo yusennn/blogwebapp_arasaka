@@ -1,19 +1,29 @@
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .forms import UserRegisterForm, UserLoginForm, UserLogoutForm, PostForm, EventRegistrationForm
+from .forms import UserRegisterForm, UserLoginForm, UserLogoutForm, PostForm, EventForm
 from .models import Post, Event, EventVisitor
 
 
 def home(request):
     posts = Post.objects.all()
-    return render(request, 'blog/home.html', {'posts': posts})
+    latest_post = Post.objects.order_by('-created_at').first()
+    latest_event = Event.objects.order_by('-created_at').first()
+    latest_events = Event.objects.order_by('-created_at')[:3]
+    latest_posts = Post.objects.order_by('-created_at')[:3]
+    context = {'posts': posts, 'latest_post': latest_post, 'latest_event': latest_event, 'latest_events': latest_events, 'latest_posts': latest_posts}
+    return render(request, 'blog/home.html', context)
 
 
 def event_list(request):
-    events = Event.objects.all()
+    events = Event.objects.order_by('-created_at')
     return render(request, 'blog/events.html', {'events': events})
+
+
+def post_list(request):
+    posts = Post.objects.order_by('-created_at')
+    return render(request, 'blog/posts.html', {'posts': posts})
 
 
 def event_detail(request, pk):
@@ -83,38 +93,55 @@ def logout(request):
     return render(request, 'registration/logout.html', {'form': form})
 
 
-@login_required
+@permission_required('myapp.can_create_post')
 def create_post(request):
     if request.method == 'POST':
-        form = PostForm(request.POST)
+        form = PostForm(request.POST, request.FILES)
         if form.is_valid():
             post = form.save(commit=False)
             post.author = request.user
-            if form.cleaned_data.get('is_registration_post'):
-                post.is_registration_post = True
             post.save()
-            return redirect('post_detail', post_id=post.pk)
+            return redirect('home')
     else:
         form = PostForm()
-    return render(request, 'create_post.html', {'form': form})
+    return render(request, 'blog/base.html', {'form': form})
 
 
-def event_registration(request, pk):
-    print("view is being called")
-    event = get_object_or_404(Event, pk=pk)
+@permission_required('myapp.can_create_event')
+def create_event(request):
     if request.method == 'POST':
-        form = EventRegistrationForm(request.POST, event=event) # pass the event instance
+        form = EventForm(request.POST, request.FILES)
         if form.is_valid():
-            event_visitor = form.save(commit=True)
-            print(form.errors)
-            print(event_visitor)
-            event_visitor.event = event
-            event_visitor.save()
-            messages.success(request, 'You have successfully registered for the event!')
-            return redirect('event_detail', pk=event.pk)
+            event = form.save(commit=False)
+            event.author = request.user
+            event.save()
+            return redirect('home')
     else:
-        form = EventRegistrationForm(event=event) # pass the event instance
-    return render(request, 'event_registration.html', {'form': form, 'event': event})
+        form = EventForm()
+    return render(request, 'blog/base.html', {'form': form})
+
+
+@login_required
+def event_registration(request, pk):
+    event = get_object_or_404(Event, pk=pk)
+
+    # проверяем, существует ли уже запись на это событие для текущего пользователя
+    try:
+        visitor = EventVisitor.objects.get(event=event, user=request.user)
+    except EventVisitor.DoesNotExist:
+        # если записи нет, то создаем новую запись
+        visitor = EventVisitor.objects.create(event=event, name=request.user.username, email=request.user.email, user=request.user)
+
+    return render(request, 'event_registration.html', {'event': event, 'visitor': visitor})
+
+
+
+
+
+
+
+
+
 
 
 

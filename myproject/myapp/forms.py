@@ -26,7 +26,7 @@ class UserRegisterForm(UserCreationForm):
                 code='password_too_similar',
             )
 
-        if len(password1) < 8:
+        if len(password1) < 3:
             raise forms.ValidationError(
                 self.error_messages['password_too_short'],
                 code='password_too_short',
@@ -42,7 +42,7 @@ class UserRegisterForm(UserCreationForm):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'password1', 'password2']
+        fields = ['username', 'first_name', 'email', 'password1', 'password2']
         error_messages = {
             'password_mismatch': _("Пароли не совпадают."),
         }
@@ -57,39 +57,21 @@ class UserLogoutForm(forms.Form):
     pass
 
 
+class EventRegistrationForm(forms.ModelForm):
+    class Meta:
+        model = EventVisitor
+        fields = ['name', 'email']
+
+
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
         fields = ['title', 'description', 'image']
 
 
-class EventRegistrationForm(forms.ModelForm):
-    name = forms.CharField(max_length=50)
-    email = forms.EmailField()
-
+class EventForm(forms.ModelForm):
     class Meta:
-        model = EventVisitor
-        fields = ['name', 'email']
-
-    def __init__(self, event, *args, **kwargs):
-        self.event = event
-        super().__init__(*args, **kwargs)
-
-    def clean(self):
-        cleaned_data = super().clean()
-        email = cleaned_data.get('email')
-        if email:
-            # Check if this email is already registered for this event
-            if EventVisitor.objects.filter(event=self.event, email=email).exists():
-                raise forms.ValidationError('This email has already been registered for this event.')
-        return cleaned_data
-
-    def save(self, commit=True):
-        event_visitor = super().save(commit=False)
-        event_visitor.event = self.event
-        if commit:
-            event_visitor.save()
-        return event_visitor
-
+        model = Event
+        fields = ['title', 'description', 'image']
 
 

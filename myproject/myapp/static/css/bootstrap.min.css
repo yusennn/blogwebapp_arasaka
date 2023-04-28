@@ -39,4 +39,26 @@
   color: #fff;
   padding: 10px;
 }
+.hvr {
+  color: #000;
+  position: relative;
+  text-decoration: none;
+}
+
+.hvr::before {
+  background: hsl(45 100% 70%);
+  content: "";
+  inset: 0;
+  position: absolute;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.5s ease-in-out;
+  z-index: -1;
+}
+
+.hvr:hover::before {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
 /*# sourceMappingURL=bootstrap.min.css.map */
